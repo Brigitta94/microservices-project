@@ -1,0 +1,22 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet id="20230607160700-create-orders-table" author="brigitta.coman">
+        <sql>
+            create sequence if not exists orders_seq;
+            create table if not exists orders (
+            id int primary key,
+            order_number varchar(100)
+            );
+        </sql>
+        <rollback>
+            <sql>
+                drop table if exists orders;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

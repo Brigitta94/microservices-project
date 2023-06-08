@@ -1,0 +1,23 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet id="20230607140400-create-products-table" author="brigitta.coman">
+        <sql>
+            create table if not exists products (
+            id int primary key,
+            name varchar(100),
+            description varchar(100),
+            price numeric
+            );
+        </sql>
+        <rollback>
+            <sql>
+                drop table if exists products;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
