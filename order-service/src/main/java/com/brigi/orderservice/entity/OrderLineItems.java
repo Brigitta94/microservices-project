@@ -2,8 +2,6 @@ package com.brigi.orderservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GeneratorType;
-import org.hibernate.annotations.IdGeneratorType;
 
 import java.math.BigDecimal;
 
@@ -23,6 +21,6 @@ public class OrderLineItems {
     private BigDecimal price;
     private Integer quantity;
     @ManyToOne
-    @JoinColumn(name="order_id", nullable=false)
+    @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 }

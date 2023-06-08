@@ -7,15 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class InventoryServiceImpl implements InventoryService {
     @Autowired
     private InventoryRepository inventoryRepository;
 
-    //@Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     @Override
-    public boolean isInStock(final String skuCode) {
-        return inventoryRepository.findBySkuCode(skuCode).isPresent();
+    public List<InventoryDto> isInStock(final List<String> skuCode) {
+        return inventoryRepository.findBySkuCodeIn(skuCode).stream()
+                .map(inventory -> new InventoryDto(inventory.getSkuCode(), inventory.getQuantity()))
+                .toList();
     }
 
     @Override
@@ -25,5 +29,17 @@ public class InventoryServiceImpl implements InventoryService {
                 .skuCode(inventoryDto.skuCode())
                 .build();
         inventoryRepository.save(inventory);
+    }
+
+    @Override
+    public void updateInventories(List<InventoryDto> inventoryDtos) {
+        List<Inventory> updateInventories = inventoryDtos.stream()
+                .map(inventoryDto -> inventoryRepository.findBySkuCode(inventoryDto.skuCode())
+                        .map(inventory -> Inventory.builder().id(inventory.getId())
+                                .skuCode(inventory.getSkuCode())
+                                .quantity(inventory.getQuantity() - inventoryDto.quantity()).build())
+                        .orElseThrow(() -> new IllegalArgumentException())
+                ).toList();
+        inventoryRepository.saveAll(updateInventories);
     }
 }
