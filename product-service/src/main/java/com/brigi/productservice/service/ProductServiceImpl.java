@@ -4,12 +4,14 @@ import com.brigi.productservice.dto.ProductRequest;
 import com.brigi.productservice.dto.ProductResponse;
 import com.brigi.productservice.entity.Product;
 import com.brigi.productservice.repository.ProductRepository;
+import io.micrometer.observation.annotation.Observed;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Observed(name = "productService")
 @Service
 @Slf4j
 public class ProductServiceImpl implements ProductService {

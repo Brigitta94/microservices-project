@@ -1,12 +1,15 @@
 package com.brigi.orderservice.service;
 
 import com.brigi.orderservice.dto.InventoryDto;
+import com.brigi.orderservice.dto.NotificationResponse;
 import com.brigi.orderservice.dto.OrderLineItemsDto;
 import com.brigi.orderservice.dto.OrderRequest;
 import com.brigi.orderservice.entity.Order;
 import com.brigi.orderservice.entity.OrderLineItems;
 import com.brigi.orderservice.repository.OrderRepository;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -14,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+@Observed(name = "orderService")
 @Service
 public class OrderServiceImpl implements OrderService {
     @Autowired
@@ -21,7 +25,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    public void placeOrder(final OrderRequest orderRequest) {
+    @Autowired
+    private KafkaTemplate<String, NotificationResponse> kafkaTemplate;
+
+    public String placeOrder(final OrderRequest orderRequest) {
         List<OrderLineItems> orderLineItems = orderRequest.orderLineItemsDtos().stream()
                 .map(this::mapToEntity)
                 .toList();
@@ -32,7 +39,10 @@ public class OrderServiceImpl implements OrderService {
 
         if (checkIfProductsAreInStock(order)) {
             orderRepository.save(order);
+            kafkaTemplate.send("notificationTopic", new NotificationResponse("Order number is " + order.getOrderNumber()));
+            kafkaTemplate.send("topicTwo", new NotificationResponse("Order id is " + order.getId()));
 //            updateInventoryStock(orderLineItems);
+            return "Order placed succesfully";
         } else {
             throw new IllegalArgumentException("Product is not found in stock");
         }

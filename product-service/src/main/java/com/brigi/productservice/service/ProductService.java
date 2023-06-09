@@ -2,6 +2,7 @@ package com.brigi.productservice.service;
 
 import com.brigi.productservice.dto.ProductRequest;
 import com.brigi.productservice.dto.ProductResponse;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

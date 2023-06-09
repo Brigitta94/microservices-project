@@ -3,12 +3,14 @@ package com.brigi.inventoryservice.service;
 import com.brigi.inventoryservice.dto.InventoryDto;
 import com.brigi.inventoryservice.entity.Inventory;
 import com.brigi.inventoryservice.repository.InventoryRepository;
+import io.micrometer.observation.annotation.Observed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Observed(name = "inventory-service")
 @Service
 public class InventoryServiceImpl implements InventoryService {
     @Autowired

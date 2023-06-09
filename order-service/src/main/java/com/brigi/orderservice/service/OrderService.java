@@ -5,5 +5,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface OrderService {
-    public void placeOrder(final OrderRequest orderRequest);
+    String placeOrder(final OrderRequest orderRequest);
 }
