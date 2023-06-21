@@ -10,14 +10,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 class ProductServiceApplicationTests {
-//
-//	@Container
-//	static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer<>("postgres: 15.1");
-//
-//	@DynamicPropertySource
-//	static void setProperties(DynamicPropertyRegistry dynamicPropertyRegistry) {
-//		dynamicPropertyRegistry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
-//	}
 
 	@Test
 	void contextLoads() {

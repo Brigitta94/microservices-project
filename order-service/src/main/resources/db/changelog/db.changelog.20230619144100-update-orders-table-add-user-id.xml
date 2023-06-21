@@ -1,0 +1,20 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet id="20230619144100-update-orders-table-add-user-id" author="brigitta.coman">
+        <sql>
+            alter table orders add column customer_id integer;
+            alter table orders add constraint fk_orders_customers foreign key (customer_id) REFERENCES customers (id);
+        </sql>
+        <rollback>
+            <sql>
+                alter table orders drop column user_id;
+                alter table orders drop constraint fk_orders_customers;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

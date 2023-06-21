@@ -1,4 +1,4 @@
-package com.brigi.orderservice.entity;
+package com.brigi.orderservice.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,4 +20,7 @@ public class Order {
     private String orderNumber;
     @OneToMany(mappedBy = "order")
     private List<OrderLineItems> orderLineItems;
+    @ManyToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 }

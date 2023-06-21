@@ -1,16 +1,17 @@
 package com.brigi.orderservice.service;
 
-import com.brigi.orderservice.dto.InventoryDto;
-import com.brigi.orderservice.dto.NotificationResponse;
-import com.brigi.orderservice.dto.OrderLineItemsDto;
-import com.brigi.orderservice.dto.OrderRequest;
-import com.brigi.orderservice.entity.Order;
-import com.brigi.orderservice.entity.OrderLineItems;
+import com.brigi.orderservice.model.dto.InventoryDto;
+import com.brigi.orderservice.model.dto.NotificationResponse;
+import com.brigi.orderservice.model.dto.OrderLineItemsDto;
+import com.brigi.orderservice.model.dto.OrderRequest;
+import com.brigi.orderservice.model.entity.Order;
+import com.brigi.orderservice.model.entity.OrderLineItems;
 import com.brigi.orderservice.repository.OrderRepository;
 import io.micrometer.observation.annotation.Observed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
@@ -36,12 +37,12 @@ public class OrderServiceImpl implements OrderService {
                 .orderNumber(UUID.randomUUID().toString())
                 .orderLineItems(orderLineItems)
                 .build();
-
-        if (checkIfProductsAreInStock(order)) {
+        List<InventoryDto> inventoryDtos = checkIfProductsAreInStock(order);
+        if (!inventoryDtos.isEmpty()) {
             orderRepository.save(order);
             kafkaTemplate.send("notificationTopic", new NotificationResponse("Order number is " + order.getOrderNumber()));
             kafkaTemplate.send("topicTwo", new NotificationResponse("Order id is " + order.getId()));
-//            updateInventoryStock(orderLineItems);
+            updateInventoryStock(inventoryDtos);
             return "Order placed succesfully";
         } else {
             throw new IllegalArgumentException("Product is not found in stock");
@@ -56,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
                 .build();
     }
 
-    private boolean checkIfProductsAreInStock(Order order) {
+    private List<InventoryDto> checkIfProductsAreInStock(Order order) {
         List<String> skuCodes = order.getOrderLineItems().stream()
                 .map(OrderLineItems::getSkuCode)
                 .toList();
@@ -67,27 +68,26 @@ public class OrderServiceImpl implements OrderService {
                 .bodyToMono(InventoryDto[].class)
                 .block();
         Arrays.stream(inventoryDtos).forEach(System.out::println);
-        Boolean areProductsInStock = order.getOrderLineItems().stream()
-                .map(orderLineItems -> Arrays.stream(inventoryDtos)
-                        .filter(i -> i.skuCode().equals(orderLineItems.getSkuCode()))
-                        .map(i -> i.quantity() >= orderLineItems.getQuantity())
-                        .findFirst()
-                        .orElse(false))
-                .findFirst()
-                .orElse(false);
-        return inventoryDtos.length < 0 ? false : areProductsInStock;
+        // skuCodes.stream().filter(s -> )
+        List<InventoryDto> updatedInventory = order.getOrderLineItems().stream()
+                .map(orderLineItem -> Arrays.stream(inventoryDtos)
+                        .filter(i -> i.skuCode().equals(orderLineItem.getSkuCode()))
+                        .filter(i -> i.quantity() >= orderLineItem.getQuantity())
+                        .map(i -> new InventoryDto(i.id(), i.skuCode(), i.quantity() - orderLineItem.getQuantity()))
+                        .toList())
+                .flatMap(List::stream)
+                .toList();
+        (updatedInventory).stream().forEach(System.out::println);
+        return updatedInventory.size() == skuCodes.size() ? updatedInventory : List.of();
     }
 
-//    private void updateInventoryStock(List<OrderLineItems> orderLineItems) {
-//        List<InventoryDto> inventoryDtos = orderLineItems.stream()
-//                .map(orderLineItems1 ->
-//                        new InventoryDto(orderLineItems1.getSkuCode(), orderLineItems1.getQuantity()))
-//                .toList();
-//        webClient.put()
-//                .uri("http://localhost:8082/api/inventory")
-//                .body(BodyInserters.fromValue(inventoryDtos))
-//                .retrieve()
-//                .toBodilessEntity()
-//                .block();
-//    }
+    private void updateInventoryStock(List<InventoryDto> inventoryDtos) {
+        webClientBuilder.build()
+                .put()
+                .uri("http://inventory-service/api/inventory")
+                .body(BodyInserters.fromValue(inventoryDtos))
+                .retrieve()
+                .toBodilessEntity()
+                .block();
+    }
 }

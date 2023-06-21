@@ -1,7 +1,6 @@
 package com.brigi.inventoryservice.dto;
 
-public record InventoryDto(
-        int id,
+public record InventoryRequest(
         String skuCode,
         int quantity
 ) {

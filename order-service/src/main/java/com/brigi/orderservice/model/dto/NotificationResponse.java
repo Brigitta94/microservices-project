@@ -1,4 +1,4 @@
-package com.brigi.orderservice.dto;
+package com.brigi.orderservice.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,6 +1,6 @@
 package com.brigi.orderservice.service;
 
-import com.brigi.orderservice.dto.OrderRequest;
+import com.brigi.orderservice.model.dto.OrderRequest;
 import org.springframework.stereotype.Service;
 
 @Service

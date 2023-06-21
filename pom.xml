@@ -21,6 +21,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.targer>17</maven.compiler.targer>
         <spring-cloud.version>2022.0.3</spring-cloud.version>
+        <project.artefactId>api-gateway</project.artefactId>
     </properties>
 
     <modules>

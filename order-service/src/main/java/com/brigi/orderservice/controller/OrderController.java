@@ -1,6 +1,6 @@
 package com.brigi.orderservice.controller;
 
-import com.brigi.orderservice.dto.OrderRequest;
+import com.brigi.orderservice.model.dto.OrderRequest;
 import com.brigi.orderservice.service.OrderService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     @CircuitBreaker(name = "inventory", fallbackMethod = "fallBackMethod")
     public String placeOrder(@RequestBody OrderRequest orderRequest) {
-        System.out.println(orderRequest);
         return orderService.placeOrder(orderRequest);
     }
 

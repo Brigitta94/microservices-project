@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class NotificationListener {
 
-    @KafkaListener(topics = {"notificationTopic","topicTwo" }, groupId = "1")
+    @KafkaListener(topics = {"notificationTopic", "topicTwo"}, groupId = "1")
     void listener(NotificationResponse data) {
         //TODO send email notification
         log.info(data.getMessage());

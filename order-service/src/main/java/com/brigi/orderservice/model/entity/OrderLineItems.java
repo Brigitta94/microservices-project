@@ -1,4 +1,4 @@
-package com.brigi.orderservice.entity;
+package com.brigi.orderservice.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

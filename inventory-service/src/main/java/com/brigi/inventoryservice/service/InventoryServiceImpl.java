@@ -1,6 +1,7 @@
 package com.brigi.inventoryservice.service;
 
 import com.brigi.inventoryservice.dto.InventoryDto;
+import com.brigi.inventoryservice.dto.InventoryRequest;
 import com.brigi.inventoryservice.entity.Inventory;
 import com.brigi.inventoryservice.repository.InventoryRepository;
 import io.micrometer.observation.annotation.Observed;
@@ -20,28 +21,35 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public List<InventoryDto> isInStock(final List<String> skuCode) {
         return inventoryRepository.findBySkuCodeIn(skuCode).stream()
-                .map(inventory -> new InventoryDto(inventory.getSkuCode(), inventory.getQuantity()))
+                .map(inventory -> new InventoryDto(inventory.getId(),inventory.getSkuCode(), inventory.getQuantity()))
                 .toList();
     }
 
     @Override
-    public void saveInventory(InventoryDto inventoryDto) {
+    public void saveInventory(InventoryRequest inventoryRequest) {
         Inventory inventory = Inventory.builder()
-                .quantity(inventoryDto.quantity())
-                .skuCode(inventoryDto.skuCode())
+                .quantity(inventoryRequest.quantity())
+                .skuCode(inventoryRequest.skuCode())
                 .build();
         inventoryRepository.save(inventory);
     }
 
     @Override
     public void updateInventories(List<InventoryDto> inventoryDtos) {
-        List<Inventory> updateInventories = inventoryDtos.stream()
-                .map(inventoryDto -> inventoryRepository.findBySkuCode(inventoryDto.skuCode())
-                        .map(inventory -> Inventory.builder().id(inventory.getId())
-                                .skuCode(inventory.getSkuCode())
-                                .quantity(inventory.getQuantity() - inventoryDto.quantity()).build())
-                        .orElseThrow(() -> new IllegalArgumentException())
+        List<Inventory> inventories= inventoryDtos.stream()
+                .map(inventoryDto -> Inventory.builder()
+                        .id(inventoryDto.id())
+                        .skuCode(inventoryDto.skuCode())
+                        .quantity(inventoryDto.quantity())
+                        .build()
                 ).toList();
-        inventoryRepository.saveAll(updateInventories);
+        inventoryRepository.saveAll(inventories);
+    }
+
+    @Override
+    public List<InventoryDto> getBySkuCodes(List<String> skuCodes) {
+        return inventoryRepository.findBySkuCodeIn(skuCodes).stream()
+                .map(i -> new InventoryDto(i.getId(), i.getSkuCode(), i.getQuantity()))
+                .toList();
     }
 }
