@@ -37,6 +37,15 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
+    @Override
+    public boolean updateProduct(ProductResponse productResponse) {
+        return productRepository.findById(productResponse.id())
+                .map(p -> {
+                    productRepository.save(Product.builder().id(productResponse.id()).build());
+                return true;})
+                .orElse(false);
+    }
+
     private ProductResponse mapToProductResponse(Product p) {
         return ProductResponse.builder()
                 .id(p.getId())

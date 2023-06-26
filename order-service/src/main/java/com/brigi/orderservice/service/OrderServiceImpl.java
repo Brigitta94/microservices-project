@@ -6,6 +6,7 @@ import com.brigi.orderservice.model.dto.OrderLineItemsDto;
 import com.brigi.orderservice.model.dto.OrderRequest;
 import com.brigi.orderservice.model.entity.Order;
 import com.brigi.orderservice.model.entity.OrderLineItems;
+import com.brigi.orderservice.repository.CustomerRepository;
 import com.brigi.orderservice.repository.OrderRepository;
 import io.micrometer.observation.annotation.Observed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
     @Autowired
     private WebClient.Builder webClientBuilder;
-
+    @Autowired
+    private CustomerRepository customerRepository;
     @Autowired
     private KafkaTemplate<String, NotificationResponse> kafkaTemplate;
 
@@ -33,17 +35,22 @@ public class OrderServiceImpl implements OrderService {
         List<OrderLineItems> orderLineItems = orderRequest.orderLineItemsDtos().stream()
                 .map(this::mapToEntity)
                 .toList();
+        System.out.println(orderRequest.customerId());
         Order order = Order.builder()
                 .orderNumber(UUID.randomUUID().toString())
                 .orderLineItems(orderLineItems)
+                .customer(customerRepository.findById(orderRequest.customerId())
+                        .orElseThrow(() -> new IllegalArgumentException("Customer not found")))
                 .build();
         List<InventoryDto> inventoryDtos = checkIfProductsAreInStock(order);
         if (!inventoryDtos.isEmpty()) {
             orderRepository.save(order);
-            kafkaTemplate.send("notificationTopic", new NotificationResponse("Order number is " + order.getOrderNumber()));
-            kafkaTemplate.send("topicTwo", new NotificationResponse("Order id is " + order.getId()));
+            kafkaTemplate.send("notificationTopic", new NotificationResponse("Dear " +
+                    order.getCustomer().getFirstName() + ", \n Your order with number " +
+                    order.getOrderNumber() + " was placed successfully. \n Thank you! ", order.getCustomer().getPhone()));
+           // kafkaTemplate.send("topicTwo", "Order id is " + order.getId());
             updateInventoryStock(inventoryDtos);
-            return "Order placed succesfully";
+            return "Order placed successfully";
         } else {
             throw new IllegalArgumentException("Product is not found in stock");
         }
@@ -67,8 +74,6 @@ public class OrderServiceImpl implements OrderService {
                 .retrieve()
                 .bodyToMono(InventoryDto[].class)
                 .block();
-        Arrays.stream(inventoryDtos).forEach(System.out::println);
-        // skuCodes.stream().filter(s -> )
         List<InventoryDto> updatedInventory = order.getOrderLineItems().stream()
                 .map(orderLineItem -> Arrays.stream(inventoryDtos)
                         .filter(i -> i.skuCode().equals(orderLineItem.getSkuCode()))
@@ -77,7 +82,6 @@ public class OrderServiceImpl implements OrderService {
                         .toList())
                 .flatMap(List::stream)
                 .toList();
-        (updatedInventory).stream().forEach(System.out::println);
         return updatedInventory.size() == skuCodes.size() ? updatedInventory : List.of();
     }
 

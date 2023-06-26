@@ -12,4 +12,6 @@ public interface ProductService {
     void createProduct(final ProductRequest productRequest);
 
     List<ProductResponse> getAllProducts();
+
+    boolean updateProduct(final ProductResponse productResponse);
 }

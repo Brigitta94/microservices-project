@@ -1,17 +1,20 @@
 package com.brigi;
 
 import com.brigi.dto.NotificationResponse;
+import com.brigi.service.SmsService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 public class NotificationListener {
+    @Autowired
+    SmsService smsService;
 
-    @KafkaListener(topics = {"notificationTopic", "topicTwo"}, groupId = "1")
+    @KafkaListener(topics = {"notificationTopic"}, groupId = "1")
     void listener(NotificationResponse data) {
-        //TODO send email notification
-        log.info(data.getMessage());
+        smsService.sendMessage(data.getMessage(), data.getPhoneNumber());
     }
 }

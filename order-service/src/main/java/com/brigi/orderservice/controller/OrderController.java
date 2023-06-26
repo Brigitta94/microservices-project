@@ -15,8 +15,9 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @CircuitBreaker(name = "inventory", fallbackMethod = "fallBackMethod")
+//    @CircuitBreaker(name = "inventory", fallbackMethod = "fallBackMethod")
     public String placeOrder(@RequestBody OrderRequest orderRequest) {
+        System.out.println(orderRequest);
         return orderService.placeOrder(orderRequest);
     }
 

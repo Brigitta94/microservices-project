@@ -26,4 +26,10 @@ public class ProductController {
     public List<ProductResponse> getAllProducts() {
         return productService.getAllProducts();
     }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public boolean updateProduct(@RequestBody ProductResponse productResponse) {
+        return productService.updateProduct(productResponse);
+    }
 }
