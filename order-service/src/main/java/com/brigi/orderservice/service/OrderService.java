@@ -6,4 +6,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface OrderService {
     String placeOrder(final OrderRequest orderRequest);
+
+    boolean deleteOrder(final Integer orderID);
 }

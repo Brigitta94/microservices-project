@@ -1,0 +1,18 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog/1.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog/1.9
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-1.9.xsd">
+
+    <changeSet id="20230627111100-update-orders-table-add-canceled-field" author="brigitta.coman">
+        <sql>
+            alter table orders add column canceled boolean default false;
+        </sql>
+        <rollback>
+            <sql>
+                alter table orders drop column canceled;
+            </sql>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

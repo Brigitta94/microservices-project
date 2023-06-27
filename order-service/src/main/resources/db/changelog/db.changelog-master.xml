@@ -8,5 +8,6 @@
     <include file="classpath:/db/changelog/db.changelog.20230607161000-create-order-line-items-table.xml"/>
     <include file="classpath:/db/changelog/db.changelog.20230619144900-customers-orders-table.xml"/>
     <include file="classpath:/db/changelog/db.changelog.20230619144100-update-orders-table-add-user-id.xml"/>
+    <include file="classpath:/db/changelog/db.changelog.20230627111100-update-orders-table-add-canceled-field.xml"/>
 
 </databaseChangeLog>

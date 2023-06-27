@@ -15,10 +15,19 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-//    @CircuitBreaker(name = "inventory", fallbackMethod = "fallBackMethod")
+    @CircuitBreaker(name = "inventory", fallbackMethod = "fallBackMethod")
     public String placeOrder(@RequestBody OrderRequest orderRequest) {
-        System.out.println(orderRequest);
-        return orderService.placeOrder(orderRequest);
+        try {
+            return orderService.placeOrder(orderRequest);
+        } catch (IllegalArgumentException e) {
+            return "Product is not found in stock";
+        }
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.OK)
+    public boolean deleteOrder(@RequestBody Integer orderID) {
+        return orderService.deleteOrder(orderID);
     }
 
     public String fallBackMethod(OrderRequest orderRequest, RuntimeException runtimeException) {

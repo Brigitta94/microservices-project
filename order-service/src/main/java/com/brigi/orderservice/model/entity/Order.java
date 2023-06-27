@@ -23,4 +23,5 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "customer_id")
     private Customer customer;
+    private boolean canceled;
 }

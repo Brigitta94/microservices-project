@@ -16,7 +16,6 @@ public class SmsServiceImpl implements SmsService {
     @Value("${twilio.phone.number}")
     private String myPhoneNumber;
 
-
     @Override
     public void sendMessage(final String message, final String phoneNumber) {
         Twilio.init(accountSid, accountToken);
